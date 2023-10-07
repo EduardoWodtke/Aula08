@@ -6,8 +6,6 @@ import genreStore from '@/stores/genres'
 
 const isLoading = ref(false);
 
-const genres = ref([])
-
 const movies = ref([])
 
 const listMovies = async (genreId) => {

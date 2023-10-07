@@ -6,12 +6,10 @@ import genreStore from '@/stores/genres'
 
 const isLoading = ref(false);
 
-
-const genres = ref([])
 const tvs = ref([]);
 
 
-const listTv = async (genreId) => {
+const listTvs = async (genreId) => {
   isLoading.value = true;
   const response = await api.get('discover/tv', {
     params: {
@@ -36,11 +34,16 @@ onMounted(async () => {
   <h1>Programas de TV</h1>
   <ul class="genre-list">
     <loading v-model:active="isLoading" is-full-page />
-    <li v-for="genre in genreStore.genres" :key="genre.id" @click="listTv(genre.id)" class="genre-item">
-
+    <li
+      v-for="genre in genreStore.genres"
+      :key="genre.id"
+      @click="listTvs(genre.id)"
+      class="genre-item"
+    >
+    
       {{ genre.name }}
-
-    </li>
+    
+    </li> 
   </ul>
   <div class="tv-list">
     <div v-for="tv in tvs" :key="tv.id" class="tv-card">
@@ -48,9 +51,9 @@ onMounted(async () => {
       <img :src="`https://image.tmdb.org/t/p/w500${tv.poster_path}`" :alt="tv.name" />
       <div class="tv-details">
         <p class="tv-title">{{ tv.name }}</p>
-        <p class="tv-release-date">{{ formatDate(tv.release_date) }}</p>
+        <p class="tv-release-date">{{ formatDate(movie.release_date) }}</p>
         <p class="tv-genres">
-          <span v-for="genre_id in Tv.genre_ids" :key="genre_id" @click="listTv(genre_id)">
+          <span v-for="genre_id in Tv.genre_ids" :key="genre_id" @click="listTvs(genre_id)">
             {{ genreStore.getGenreName(genre_id) }}
           </span>
         </p>
