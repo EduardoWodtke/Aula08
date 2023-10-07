@@ -1,19 +1,33 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '@/plugins/axios'
+import Loading from 'vue-loading-overlay'
+
+const isLoading = ref(false);
+
 
 const genres = ref([])
-const movies = ref([]);
+const tvs = ref([]);
+
 
 const listTv = async (genreId) => {
-    const response = await api.get('discover/tv', {
-        params: {
-            with_genres: genreId,
-            language: 'pt-BR'
-        }
-    });
-    movies.value = response.data.results
+  isLoading.value = true;
+  const response = await api.get('discover/tv', {
+    params: {
+      with_genres: genreId,
+      language: 'pt-BR'
+    }
+  });
+  tvs.value = response.data.results
+  isLoading.value = false;
 };
+
+function getGenreName(id) {
+  const genero = genres.value.find((genre) => genre.id === id);
+  return genero.name;
+}
+
+const formatDate = (date) => new Date(date).toLocaleDateString('pt-BR')
 
 onMounted(async () => {
   const response = await api.get('genre/tv/list?language=pt-BR')
@@ -24,22 +38,27 @@ onMounted(async () => {
 <template>
   <h1>Programas de TV</h1>
   <ul class="genre-list">
+    <loading v-model:active="isLoading" is-full-page />
     <li class="genre-item" v-for="genre in genres" :key="genre.id" @click="listTv(genre.id)">
-        {{ genre.name }}
+      {{ genre.name }}
     </li>
   </ul>
-<div class="movie-list">
-  <div v-for="movie in movies" :key="movie.id" class="movie-card">
-    
-    <img :src="`https://image.tmdb.org/t/p/w500${movie.poster_path}`" :alt="movie.title" />
-    <div class="movie-details">
-      <p class="movie-title">{{ movie.title }}</p>
-      <p class="movie-release-date">{{ movie.release_date }}</p>
-      <p class="movie-genres">{{ movie.genre_ids }}</p>
+  <div class="tv-list">
+    <div v-for="tv in tvs" :key="tv.id" class="tv-card">
+
+      <img :src="`https://image.tmdb.org/t/p/w500${tv.poster_path}`" :alt="tv.name" />
+      <div class="tv-details">
+        <p class="tv-title">{{ tv.name }}</p>
+        <p class="tv-release-date">{{ formatDate(tv.release_date) }}</p>
+        <p class="tv-genres">
+          <span v-for="genre_id in tv.genre_ids" :key="genre_id" @click="listTv(genre_id)">
+            {{ getGenreName(genre_id) }}
+          </span>
+        </p>
+      </div>
+
     </div>
-    
   </div>
-</div>
 </template>
 
 <style scoped>
@@ -68,13 +87,13 @@ onMounted(async () => {
   box-shadow: 0 0 0.5rem #5d6424;
 }
 
-.movie-list {
+.tv-list {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
-.movie-card {
+.tv-card {
   width: 15rem;
   height: 30rem;
   border-radius: 0.5rem;
@@ -82,22 +101,45 @@ onMounted(async () => {
   box-shadow: 0 0 0.5rem #000;
 }
 
-.movie-card img {
+.tv-card img {
   width: 100%;
   height: 20rem;
   border-radius: 0.5rem;
   box-shadow: 0 0 0.5rem #000;
 }
 
-.movie-details {
+.tv-details {
   padding: 0 0.5rem;
 }
 
-.movie-title {
+.tv-title {
   font-size: 1.1rem;
   font-weight: bold;
   line-height: 1.3rem;
   height: 3.2rem;
 }
 
+.tv-genres {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.2rem;
+}
+
+.tv-genres span {
+  background-color: #748708;
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.tv-genres span:hover {
+  cursor: pointer;
+  background-color: #455a08;
+  box-shadow: 0 0 0.5rem #748708;
+}
 </style>
