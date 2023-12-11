@@ -22,7 +22,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <h1>Filmes</h1>
+  <h1>Series</h1>
   <ul class="genre-list">
     <li v-for="genre in genres" :key="genre.id" @click="listMovies(genre.id)" class="genre-item">
     {{ genre.name }}
